@@ -13,7 +13,22 @@ import { classNames } from 'primereact/utils';
 import React, { useEffect, useRef, useState } from 'react';
 import { CustomerService } from '../../../../demo/service/CustomerService';
 import { Demo } from '../../../../types/types';
+import { FirebaseApp, initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { getDatabase, ref, set, push, onValue, remove, update } from "firebase/database";
 
+const firebaseConfig = {
+    apiKey: "AIzaSyClEKcEsrs5Zso5koXdtHAYXl7dgjERTaY",
+    authDomain: "pets-recife.firebaseapp.com",
+    projectId: "pets-recife",
+    storageBucket: "pets-recife.appspot.com",
+    messagingSenderId: "294793361040",
+    appId: "1:294793361040:web:6f0ef5799180e22aed8a15",
+    measurementId: "G-7FZ8WYT98T"
+  };
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 
 const CrudTutores = () => {
@@ -80,33 +95,51 @@ const CrudTutores = () => {
                 _tutor.bairro = cepInfo.bairro;
             }
     
-            if (tutor.id) {
-                const index = findIndexById(tutor.id);
-    
-                _tutores[index] = _tutor;
+            if (_tutor.id) {
+                const tutorRef = ref(database, `tutors/${_tutor.id}`); // Update the reference to 'tutors'
+                update(tutorRef, _tutor);
                 toast.current?.show({
                     severity: 'success',
-                    summary: 'Sucesso',
-                    detail: 'Tutor Atualizado',
+                    summary: 'Successful',
+                    detail: 'Tutor Updated',
                     life: 3000
                 });
             } else {
-                _tutor.id = createId();
-                _tutores.push(_tutor);
+                // Criar novo tutor
+                const tutorsRef = ref(database, 'tutors');
+                const newTutorRef = push(tutorsRef);
+                const newTutorId = newTutorRef.key;
+    
+                const newTutorData = {
+                    id: newTutorId,
+                    name: _tutor.name,
+                    rua: _tutor.rua,
+                    bairro: _tutor.bairro, // Corrected property name
+                    numero: _tutor.numero, // Corrected property name
+                    cidade: _tutor.cidade,
+                    cep: _tutor.cep,
+                    estado: _tutor.estado,
+                    telefone: _tutor.telefone,
+                    cpf: _tutor.cpf,
+                    sexo: _tutor.sexo
+                };
+    
+                push(newTutorRef, newTutorData);
+    
                 toast.current?.show({
                     severity: 'success',
-                    summary: 'Sucesso',
-                    detail: 'Tutor Criado',
+                    summary: 'Successful',
+                    detail: 'Tutor Created',
                     life: 3000
                 });
             }
     
-            setTutores(_tutores);
             setTutorDialog(false);
             setTutor(tutorVazio);
         }
     };
     
+        
     const editTutor = (tutor: Demo.Customer) => {
         setTutor({ ...tutor });
         setTutorDialog(true);

@@ -83,16 +83,16 @@ const CrudPets = () => {
         setDeleteProductsDialog(false);
     };
 
-    const saveProduct = () => {
+    const saveProduct = async () => {
         setSubmitted(true);
 
         if (product.name.trim()) {
-            let _products = [...(products as any)];
             let _product = { ...product };
+    
             if (product.id) {
-                const index = findIndexById(product.id);
-
-                _products[index] = _product;
+                // Atualizar produto existente
+                const productRef = ref(database, `products/${product.id}`);
+                update(productRef, _product);
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Successful',
@@ -100,9 +100,26 @@ const CrudPets = () => {
                     life: 3000
                 });
             } else {
-                _product.id = createId();
-                _product.image = 'product-placeholder.svg';
-                _products.push(_product);
+                // Criar novo produto
+                const productsRef = ref(database, 'products');
+                const newProductRef = push(productsRef);
+                const newProductId = newProductRef.key;
+    
+                const newPetData = {
+                    id: newProductId,
+                    name: product.name,
+                    especie: product.especie,
+                    idade: product.idade,
+                    date: product.date,
+                    peso: product.peso,
+                    quantity: product.quantity,
+                    cor: product.cor,
+                    sexo: product.sexo
+                    // Adicione outros campos conforme necessário
+                };
+    
+                push(newProductRef, newPetData);
+    
                 toast.current?.show({
                     severity: 'success',
                     summary: 'Successful',
@@ -110,23 +127,11 @@ const CrudPets = () => {
                     life: 3000
                 });
             }
-
-            setProducts(_products as any);
+    
             setProductDialog(false);
             setProduct(emptyProduct);
         }
     };
-
-    const editProduct = (product: Demo.Product) => {
-        setProduct({ ...product });
-        setProductDialog(true);
-    };
-
-    const confirmDeleteProduct = (product: Demo.Product) => {
-        setProduct(product);
-        setDeleteProductDialog(true);
-    };
-
     const deleteProduct = () => {
         let _products = (products as any)?.filter((val: any) => val.id !== product.id);
         setProducts(_products);
@@ -283,9 +288,13 @@ const CrudPets = () => {
     };
 
     const actionBodyTemplate = (rowData: Demo.Product) => {
+        function confirmDeleteProduct(rowData: Demo.Product): void {
+            throw new Error('Function not implemented.');
+        }
+
         return (
             <>
-                <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => editProduct(rowData)} />
+                <Button icon="pi pi-pencil" rounded severity="success" className="mr-2" onClick={() => setProduct(rowData)} />
                 <Button icon="pi pi-trash" rounded severity="warning" onClick={() => confirmDeleteProduct(rowData)} />
             </>
         );

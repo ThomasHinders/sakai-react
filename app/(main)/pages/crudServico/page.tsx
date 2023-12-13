@@ -14,6 +14,22 @@ import React, { useEffect, useRef, useState } from 'react';
 import { EventService } from '../../../../demo/service/EventService';
 import { Demo} from '../../../../types/types';
 import { Menu } from 'primereact/menu';
+import { FirebaseApp, initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { getDatabase, ref, set, push, onValue, remove, update } from "firebase/database";
+
+const firebaseConfig = {
+    apiKey: "AIzaSyClEKcEsrs5Zso5koXdtHAYXl7dgjERTaY",
+    authDomain: "pets-recife.firebaseapp.com",
+    projectId: "pets-recife",
+    storageBucket: "pets-recife.appspot.com",
+    messagingSenderId: "294793361040",
+    appId: "1:294793361040:web:6f0ef5799180e22aed8a15",
+    measurementId: "G-7FZ8WYT98T"
+  };
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
 
 
 
@@ -63,32 +79,45 @@ const CrudServico = ({}) => {
         if (servico.name?.trim()) {
             let _servicos = [...(servicos as unknown as Demo.Event[])];
             let _servico = { ...servico };
-            if (servico.id) {
-                const index = findIndexById(servico.id);
     
-                _servicos[index] = _servico;
+            if (_servico.id) {
+                const servicoRef = ref(database, `servicos/${_servico.id}`); // Update the reference to 'servicos'
+                update(servicoRef, _servico);
                 toast.current?.show({
                     severity: 'success',
-                    summary: 'Sucesso',
-                    detail: 'Serviço Atualizado',
+                    summary: 'Successful',
+                    detail: 'Serviço Updated',
                     life: 3000
                 });
             } else {
-                _servico.id = createId();
-                _servicos.push(_servico);
+                // Criar novo serviço
+                const servicosRef = ref(database, 'servicos');
+                const newServicoRef = push(servicosRef);
+                const newServicoId = newServicoRef.key;
+    
+                const newServicoData = {
+                    id: newServicoId,
+                    name: _servico.name,
+                    descricao: _servico.descricao,
+                    preco: _servico.preco,
+                    duracao: _servico.duracao
+                };
+    
+                push(newServicoRef, newServicoData);
+    
                 toast.current?.show({
                     severity: 'success',
-                    summary: 'Sucesso',
-                    detail: 'Serviço Criado',
+                    summary: 'Successful',
+                    detail: 'Serviço Created',
                     life: 3000
                 });
             }
     
-            setServicos(_servicos);
             setServicoDialog(false);
             setServico(servicoVazio);
         }
     };
+    
     
     const editServico = (servico: Demo.Event) => {
         setServico({ ...servico });
