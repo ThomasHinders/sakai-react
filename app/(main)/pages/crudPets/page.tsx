@@ -17,8 +17,24 @@ import { Demo } from '../../../../types/types';
 import { Calendar } from 'primereact/calendar';
 import { CalendarChangeEvent } from 'primereact/calendar';
 import {format} from 'date-fns';
+import { FirebaseApp, initializeApp } from "firebase/app";
+import { getFirestore, collection, addDoc, getDocs, updateDoc, deleteDoc, doc } from "firebase/firestore";
+import { getDatabase, ref, set, push, onValue, remove, update } from "firebase/database";
 
-/* @todo Used 'as any' for types here. Will fix in next version due to onSelectionChange event type issue. */
+
+const firebaseConfig = {
+    apiKey: "AIzaSyClEKcEsrs5Zso5koXdtHAYXl7dgjERTaY",
+    authDomain: "pets-recife.firebaseapp.com",
+    projectId: "pets-recife",
+    storageBucket: "pets-recife.appspot.com",
+    messagingSenderId: "294793361040",
+    appId: "1:294793361040:web:6f0ef5799180e22aed8a15",
+    measurementId: "G-7FZ8WYT98T"
+  };
+
+const app = initializeApp(firebaseConfig);
+const database = getDatabase(app);
+
 const CrudPets = () => {
     let emptyProduct: Demo.Product = {
         id: '',
