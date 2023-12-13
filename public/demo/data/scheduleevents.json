@@ -1,0 +1,12 @@
+{
+	"data": [
+		{
+			"id": "1000",
+			"name": "Banho",
+			"descricao": "Banho no cachorro",
+			"preco": 30,
+			"duracao": 90
+
+		}
+	]
+}

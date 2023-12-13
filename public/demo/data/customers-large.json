@@ -1,0 +1,16 @@
+{
+    "data": [
+        {
+            "id": "1000",
+            "name": "Thomas",
+            "rua": "Navegantes",
+            "bairro": "Boa Viagem",
+            "numero": 0,
+            "cidade": "Recife",
+            "cep": "12234452",
+            "estado": "Pernambuco",
+            "telefone": "93189483194",
+            "cpf": "3941983",
+            "sexo": "M"
+        }
+    ]}
